@@ -4,7 +4,6 @@ import time
 from multiprocessing import Pool
 
 import gradio as gr
-import jax.numpy as jnp
 import numpy as np
 import pytube
 from jax.experimental.compilation_cache import compilation_cache as cc
@@ -49,7 +48,6 @@ def format_timestamp(seconds: float, always_include_hours: bool = False, decimal
         milliseconds -= hours * 3_600_000
 
         minutes = milliseconds // 60_000
-        milliseconds -= minutes * 60_000
 
         seconds = milliseconds // 1_000
         milliseconds -= seconds * 1_000
@@ -72,7 +70,6 @@ if __name__ == "__main__":
     def tqdm_generate(inputs: dict, task: str, return_timestamps: bool, progress: gr.Progress):
         inputs_len = inputs["array"].shape[0]
         all_chunk_start_idx = np.arange(0, inputs_len, step)
-        num_samples = len(all_chunk_start_idx)
         num_batches = math.ceil(num_samples / BATCH_SIZE)
         dummy_batches = list(
             range(num_batches)
@@ -154,7 +151,6 @@ if __name__ == "__main__":
         text, runtime = tqdm_generate(inputs, task=task, return_timestamps=return_timestamps, progress=progress)
         return html_embed_str, text, runtime
 
-    microphone_chunked = gr.Interface(
         fn=transcribe_chunked_audio,
         inputs=[
             gr.inputs.Audio(source="microphone", optional=True, type="filepath"),
@@ -192,8 +188,8 @@ if __name__ == "__main__":
         fn=transcribe_youtube,
         inputs=[
             gr.inputs.Textbox(lines=1, placeholder="Paste the URL to a YouTube video here", label="YouTube URL"),
-            gr.inputs.Radio(["transcribe", "translate"], label="Task", default="transcribe"),
             gr.inputs.Checkbox(default=False, label="Return timestamps"),
+
         ],
         outputs=[
             gr.outputs.HTML(label="Video"),
